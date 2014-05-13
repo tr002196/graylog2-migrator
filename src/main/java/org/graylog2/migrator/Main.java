@@ -28,7 +28,7 @@ public class Main {
         StreamService streamService = new StreamServiceImpl(toDbConnection);
 
         for (DBObject obj : cursor) {
-            MigratedStreamFields fields = StreamObjectBuilder.buildStreamObject(obj, "0.12.0");
+            MigratedStreamFields fields = StreamFieldsBuilder.buildStreamFields(obj, "0.12.0");
             Stream streamObject = new MigratedStream(fields.getId(), fields.getFields());
 
             LOG.info("Migrating Stream object {} ({})", streamObject.getId(), streamObject.getTitle());
