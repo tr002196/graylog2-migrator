@@ -6,7 +6,7 @@ for now.
 
 ## Installation
 
-Download the JAR file from the Releases page.
+Download the JAR file from the Releases page or build with `mvn package`.
 
 ## Usage
 
