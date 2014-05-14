@@ -73,6 +73,9 @@ public class Main {
         for (MigratedStreamFields rule : fields.getStreamRules()) {
             try {
                 StreamRule streamRule = new MigratedStreamRule(rule.getId(), rule.getFields());
+
+                LOG.info("Migrating Stream rule object {}", streamRule.getId());
+
                 streamRuleService.save(streamRule);
             } catch (ValidationException e) {
                 LOG.error("Stream rule validation error {}", rule.toString());
