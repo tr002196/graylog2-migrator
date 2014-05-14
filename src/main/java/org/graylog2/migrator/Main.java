@@ -10,6 +10,8 @@ import org.graylog2.streams.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URISyntaxException;
+
 /**
  * @author Bernd Ahlers <bernd@torch.sh>
  */
@@ -27,11 +29,21 @@ public class Main {
     public void run(String[] args) {
         final CommandLineArguments commandLineArguments = CommandLineArguments.createInstance("graylog2-migrator", args);
         final Configuration config = new Configuration(commandLineArguments);
+        MongoConnection fromDbConnection = null;
+        MongoConnection toDbConnection = null;
 
         LOG.info("Migrating data from version {}", config.getFromVersion());
 
-        MongoConnection fromDbConnection = createDbConnection(commandLineArguments.getFromDb());
-        MongoConnection toDbConnection = createDbConnection(commandLineArguments.getToDb());
+        try {
+            fromDbConnection = createDbConnection(config.getFromDb());
+            toDbConnection = createDbConnection(config.getToDb());
+        } catch(URISyntaxException e) {
+            LOG.error("Invalid URI", e);
+            System.exit(1);
+        } catch (MongoDBConfig.MongoDBConfigError e) {
+            LOG.error("Invalid MongoDB config: {}", e.getMessage());
+            System.exit(1);
+        }
 
         DBCursor cursor = fromDbConnection.getDatabase().getCollection("streams").find();
         StreamService streamService = new StreamServiceImpl(toDbConnection);
@@ -70,17 +82,13 @@ public class Main {
         }
     }
 
-    private MongoConnection createDbConnection(String dbname) {
-        /* TODO: Host and port should be configurable! */
-        String host = "127.0.0.1";
-        int port = 27017;
-
-        LOG.info("Connecting to MongoDB {}/{}", host + ":" + port, dbname);
+    private MongoConnection createDbConnection(MongoDBConfig db) {
+        LOG.info("Connecting to {}", db);
         MongoConnection conn = new MongoConnection();
 
-        conn.setHost(host);
-        conn.setPort(port);
-        conn.setDatabase(dbname);
+        conn.setHost(db.getHost());
+        conn.setPort(db.getPort());
+        conn.setDatabase(db.getDatabase());
         conn.setMaxConnections(1);
         conn.setThreadsAllowedToBlockMultiplier(1);
         conn.connect();

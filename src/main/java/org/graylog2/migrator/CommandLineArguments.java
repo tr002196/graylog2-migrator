@@ -17,10 +17,10 @@ public class CommandLineArguments {
     @Parameter(names = {"-h", "--help"}, description = "Show usage information and exit", help = true)
     private boolean showHelp = false;
 
-    @Parameter(names = {"--from-db"}, description = "Source database", required = true)
+    @Parameter(names = {"--from-db"}, description = "Source database URI (Example: mongodb://localhost/graylog2old)", required = true)
     private String fromDb;
 
-    @Parameter(names = {"--to-db"}, description = "Target database", required = true)
+    @Parameter(names = {"--to-db"}, description = "Target database URI (Example: mongodb://localhost/graylog2new", required = true)
     private String toDb;
 
     @Parameter(names = {"--creator"}, description = "Value for the creator_user_id field")
