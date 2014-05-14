@@ -12,8 +12,8 @@ public class MongoDBConfig {
         }
     }
 
-    private final String DEFAULT_HOST = "localhost";
-    private final int DEFAULT_PORT = 27017;
+    private static final String DEFAULT_HOST = "localhost";
+    private static final int DEFAULT_PORT = 27017;
 
     private final String host;
     private final int port;
