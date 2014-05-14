@@ -26,6 +26,9 @@ public class Main {
 
     public void run(String[] args) {
         final CommandLineArguments commandLineArguments = CommandLineArguments.createInstance("graylog2-migrator", args);
+        final Configuration config = new Configuration(commandLineArguments);
+
+        LOG.info("Migrating data from version {}", config.getFromVersion());
 
         MongoConnection fromDbConnection = createDbConnection(commandLineArguments.getFromDb());
         MongoConnection toDbConnection = createDbConnection(commandLineArguments.getToDb());
@@ -35,7 +38,7 @@ public class Main {
         StreamRuleService streamRuleService = new StreamRuleServiceImpl(toDbConnection);
 
         for (DBObject obj : cursor) {
-            MigratedStreamFields fields = StreamFieldsBuilder.buildStreamFields(obj, "0.12.0");
+            MigratedStreamFields fields = StreamFieldsBuilder.buildStreamFields(obj, config);
 
             try {
                 Stream streamObject = new MigratedStream(fields.getId(), fields.getFields());

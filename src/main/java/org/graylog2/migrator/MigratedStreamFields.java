@@ -12,9 +12,11 @@ import java.util.Map;
  */
 public abstract class MigratedStreamFields {
     protected final DBObject fields;
+    private final Configuration config;
 
-    public MigratedStreamFields(DBObject fields) {
+    public MigratedStreamFields(DBObject fields, Configuration config) {
         this.fields = fields;
+        this.config = config;
     }
 
     public ObjectId getId() {
@@ -31,6 +33,10 @@ public abstract class MigratedStreamFields {
         public UnsupportedFieldsError(String message) {
             super(message);
         }
+    }
+
+    public Configuration getConfig() {
+        return config;
     }
 
     public String toString() {

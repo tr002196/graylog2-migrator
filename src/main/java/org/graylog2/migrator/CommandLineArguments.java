@@ -23,6 +23,12 @@ public class CommandLineArguments {
     @Parameter(names = {"--to-db"}, description = "Target database", required = true)
     private String toDb;
 
+    @Parameter(names = {"--creator"}, description = "Value for the creator_user_id field")
+    private String creator = "admin";
+
+    @Parameter(names = {"--from-version"}, description = "Graylog2 version of the source database")
+    private String fromVersion = "0.12.0";
+
     public boolean isShowHelp() {
         return showHelp;
     }
@@ -33,6 +39,14 @@ public class CommandLineArguments {
 
     public String getToDb() {
         return toDb;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public String getFromVersion() {
+        return fromVersion;
     }
 
     public static CommandLineArguments createInstance(String progname, String[] args) {

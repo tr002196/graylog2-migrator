@@ -12,8 +12,8 @@ import java.util.Map;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class MigratedStreamFieldsV0120 extends MigratedStreamFields {
-    public MigratedStreamFieldsV0120(DBObject fields) {
-        super(fields);
+    public MigratedStreamFieldsV0120(DBObject fields, Configuration config) {
+        super(fields, config);
     }
 
     @Override
@@ -25,8 +25,7 @@ public class MigratedStreamFieldsV0120 extends MigratedStreamFields {
         newFields.put("created_at", fields.get("created_at"));
         newFields.put("updated_at", fields.get("updated_at"));
         newFields.put("description", fields.get("description"));
-        /* TODO: Check the database for the first admin user or add command line option? */
-        newFields.put("creator_user_id", "admin");
+        newFields.put("creator_user_id", getConfig().getCreator());
 
         return newFields;
     }
@@ -37,7 +36,7 @@ public class MigratedStreamFieldsV0120 extends MigratedStreamFields {
 
         for (Object _rule : (BasicDBList) fields.get("streamrules")) {
             DBObject rule = (DBObject) _rule;
-            rules.add(new MigratedStreamRulesFieldsV0120(rule));
+            rules.add(new MigratedStreamRulesFieldsV0120(rule, getConfig()));
         }
 
         return rules;

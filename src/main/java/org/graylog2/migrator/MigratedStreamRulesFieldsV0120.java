@@ -11,8 +11,8 @@ import java.util.Map;
  * @author Bernd Ahlers <bernd@torch.sh>
  */
 public class MigratedStreamRulesFieldsV0120 extends MigratedStreamFields {
-    public MigratedStreamRulesFieldsV0120(DBObject fields) {
-        super(fields);
+    public MigratedStreamRulesFieldsV0120(DBObject fields, Configuration config) {
+        super(fields, config);
     }
 
     @Override
