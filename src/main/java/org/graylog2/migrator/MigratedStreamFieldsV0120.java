@@ -37,7 +37,7 @@ public class MigratedStreamFieldsV0120 extends MigratedStreamFields {
 
         for (Object _rule : (BasicDBList) fields.get("streamrules")) {
             DBObject rule = (DBObject) _rule;
-            rules.add(new MigratedStreamRulesV0120(rule));
+            rules.add(new MigratedStreamRulesFieldsV0120(rule));
         }
 
         return rules;
