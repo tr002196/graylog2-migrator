@@ -1,14 +1,12 @@
 package org.graylog2.migrator;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.graylog2.database.MongoConnection;
 import org.graylog2.database.ValidationException;
 import org.graylog2.plugin.streams.Stream;
-import org.graylog2.streams.StreamService;
-import org.graylog2.streams.StreamServiceImpl;
+import org.graylog2.plugin.streams.StreamRule;
+import org.graylog2.streams.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,51 +16,58 @@ import org.slf4j.LoggerFactory;
 public class Main {
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
 
+    private Main() { }
+
     public static void main(String[] args) {
-        final CommandLineArguments commandLineArguments = getCommandLineArguments(args);
+        Main main = new Main();
+
+        main.run(args);
+    }
+
+    public void run(String[] args) {
+        final CommandLineArguments commandLineArguments = CommandLineArguments.createInstance("graylog2-migrator", args);
 
         MongoConnection fromDbConnection = createDbConnection(commandLineArguments.getFromDb());
         MongoConnection toDbConnection = createDbConnection(commandLineArguments.getToDb());
 
         DBCursor cursor = fromDbConnection.getDatabase().getCollection("streams").find();
         StreamService streamService = new StreamServiceImpl(toDbConnection);
+        StreamRuleService streamRuleService = new StreamRuleServiceImpl(toDbConnection);
 
         for (DBObject obj : cursor) {
             MigratedStreamFields fields = StreamFieldsBuilder.buildStreamFields(obj, "0.12.0");
-            Stream streamObject = new MigratedStream(fields.getId(), fields.getFields());
-
-            LOG.info("Migrating Stream object {} ({})", streamObject.getId(), streamObject.getTitle());
 
             try {
+                Stream streamObject = new MigratedStream(fields.getId(), fields.getFields());
+
+                LOG.info("Migrating Stream object {} ({})", streamObject.getId(), streamObject.getTitle());
+
                 streamService.save(streamObject);
+                storeStreamRules(streamRuleService, fields);
             } catch (ValidationException e) {
-                LOG.error("Validations failed", e);
+                LOG.error("Stream validation error {}", fields.toString());
+            } catch (MigratedStreamFields.UnsupportedFieldsError e) {
+                LOG.warn("Unsupported stream field: {}", e.getMessage());
             }
         }
 
         LOG.info("DONE");
     }
 
-    private static CommandLineArguments getCommandLineArguments(String[] args) {
-        CommandLineArguments commandLineArguments = new CommandLineArguments();
-
-        try {
-            JCommander jCommander = new JCommander(commandLineArguments, args);
-            jCommander.setProgramName("graylog2-migrator");
-
-            if (commandLineArguments.isShowHelp()) {
-                jCommander.usage();
-                System.exit(0);
+    private void storeStreamRules(StreamRuleService streamRuleService, MigratedStreamFields fields) {
+        for (MigratedStreamFields rule : fields.getStreamRules()) {
+            try {
+                StreamRule streamRule = new MigratedStreamRule(rule.getId(), rule.getFields());
+                streamRuleService.save(streamRule);
+            } catch (ValidationException e) {
+                LOG.error("Stream rule validation error {}", rule.toString());
+            } catch (MigratedStreamFields.UnsupportedFieldsError e) {
+                LOG.warn("Unsupported stream rule field: {}", e.getMessage());
             }
-        } catch (ParameterException e) {
-            LOG.error(e.getMessage());
-            System.exit(1);
         }
-
-        return commandLineArguments;
     }
 
-    private static MongoConnection createDbConnection(String dbname) {
+    private MongoConnection createDbConnection(String dbname) {
         /* TODO: Host and port should be configurable! */
         String host = "127.0.0.1";
         int port = 27017;

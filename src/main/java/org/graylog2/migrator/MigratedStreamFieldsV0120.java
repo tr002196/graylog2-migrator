@@ -1,8 +1,11 @@
 package org.graylog2.migrator;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,5 +29,17 @@ public class MigratedStreamFieldsV0120 extends MigratedStreamFields {
         newFields.put("creator_user_id", "admin");
 
         return newFields;
+    }
+
+    @Override
+    public List<? extends MigratedStreamFields> getStreamRules() {
+        List<MigratedStreamFields> rules = new ArrayList<>();
+
+        for (Object _rule : (BasicDBList) fields.get("streamrules")) {
+            DBObject rule = (DBObject) _rule;
+            rules.add(new MigratedStreamRulesV0120(rule));
+        }
+
+        return rules;
     }
 }

@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * This StreamImpl subclass is needed so we can use the existing ObjectId. There is no public
- * constructor which takes the Objectid.
+ * constructor which takes the ObjectId.
  *
  * @author Bernd Ahlers <bernd@torch.sh>
  */
