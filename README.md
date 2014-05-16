@@ -4,11 +4,17 @@ Graylog2 Migrator
 A tool to migrate data from a pre-0.20.x Graylog2 version to a new instance. It only supports streams and streamrules
 for now.
 
+## WARNING
+
+This is an early release which hasn't received much testing yet!
+
 ## Installation
 
 Download the JAR file from the Releases page or build with `mvn package`.
 
 ## Usage
+
+**Make sure to backup the old and new Graylog2 MongoDB databases before using this tool!**
 
 Use the `-h` flag to show the available command line options.
 
